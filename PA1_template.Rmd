@@ -1,25 +1,174 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: "Peer Assessment 1"
+author: "Abe1985"
+date: "Saturday, October 18, 2014"
+output: html_document
 ---
 
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-## Loading and preprocessing the data
-
-
-
-## What is mean total number of steps taken per day?
+This document is for the Peer Assessement 1 in Reproducible Reasearch on <https://www.coursera.org/>. 
 
 
+##Introduction
+It is now possible to collect a large amount of data about personal movement using activity monitoring devices such as a Fitbit, Nike Fuelband, or Jawbone Up. These type of devices are part of the "quantified self" movement - a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. But these data remain under-utilized both because the raw data are hard to obtain and there is a lack of statistical methods and software for processing and interpreting the data.
 
-## What is the average daily activity pattern?
+This assignment makes use of data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.
+
+**Data**
+
+The data for this assignment was downloaded from the course web site:
+Dataset: [Activity monitoring data [52K]] (https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip)
+The dataset is stored in a comma-separated-value (CSV) file and there are a total of 17,568 observations in this dataset.
+
+The variables included in this dataset are:
+
+1. steps: Number of steps taking in a 5-minute interval (missing values are coded as NA)
+
+2. date: The date on which the measurement was taken in YYYY-MM-DD format
+
+3. interval: Identifier for the 5-minute interval in which measurement was taken
+
+
+##Loading and preprocessing the data
 
 
 
-## Imputing missing values
+I downloaded the Zipfile and extraxted the activity.csv file in a folder named "activity" in my working directory.
+
+This is my code that loads the data into R and stores it an an object called activity.:
+
+```{r}
+activity <- read.csv(file="activity/activity.csv", header= TRUE, sep=",", colClasses=c("numeric","Date","numeric"))
+summary(activity)
+```
+
+
+##Process/transform the data into a format suitable for your analysis
+
+The following code creates a clean data set without missing values that will be stored in an object called "cleanActivity":
+```{r}
+cleanActivity <- activity[complete.cases(activity),]
+summary(cleanActivity)
+```
+
+**What is mean total number of steps taken per day?**
+
+```{r}
+sapply(split(cleanActivity$steps, cleanActivity$date),mean)
+```
+
+
+**Make a histogram of the total number of steps taken each day**
+
+This is an overview of the total number of steps taken per day:
+```{r, echo=FALSE, fig.height=4, fig.width=7}
+barplot(sapply(split(cleanActivity$steps, cleanActivity$date),sum), col= "red", main = "total number of steps taken each day", xlab= "")
+
+```
+ 
+This Histogramm shows the frequency of the total number of steps taken per day:
+
+```{r, fig.height=4, fig.width=7}
+h <- sapply(split(cleanActivity$steps, cleanActivity$date),sum)
+hist(h, col= "red", main = "Histogram", xlab= "total number of steps taken each day")
+
+```
+
+**calculate and report the mean and median total number of steps taken per day**
+
+The following R-Code callculates the mean and median
+```{r}
+a <- mean(sapply(split(cleanActivity$steps, cleanActivity$date),sum))
+b <- median(sapply(split(cleanActivity$steps, cleanActivity$date),sum))
+```
+The mean number of steps taken per day is `r a`
+The median number of steps taken per day is `r b`
 
 
 
-## Are there differences in activity patterns between weekdays and weekends?
+##What is the average daily activity pattern?
+
+**Make a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)**
+```{r, fig.height=3, fig.width=10}
+ts <- sapply(split(cleanActivity$steps, cleanActivity$interval),mean)
+plot(ts, type = "l", main = "Average steps taken per interval", xlab= "interval number", ylab="average number of steps taken, averaged across all days", labels=FALSE,tick=FALSE)
+axis(1, at=c(1,45,89,133,177,221,265), labels=c(0,340,720,1100,1440,1820,2200))
+axis(2, labels=TRUE)
+```
+
+
+**Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?**
+```{r}
+intervals <- sapply(split(cleanActivity$steps, cleanActivity$interval),sum)
+mnos <- max(intervals)
+m <- intervals[intervals == mnos]
+m
+```
+The 835 inteval has the maximum number of steps, namely `r mnos`
+
+
+
+##Imputing missing values
+
+Note that there are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data.
+
+
+**Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)**
+
+
+Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+
+
+```{r}
+nanum <- sum(is.na(activity))
+nad <- sum(is.na(activity$date))
+nast <- sum(is.na(activity$steps))
+naint <- sum(is.na(activity$interval))
+```
+The number of Na's in the dataset is `r nanum`. There `r nad` are missing values in the date column, `r nast` missing values in the steps column and `r naint` missing values in the interval column. Therefore I only need to fill the missing steps values.    
+
+I will try to fill them with the mean for each 5-minute interval:
+```{r}
+meanstoimpute <- sapply(split(cleanActivity$steps, cleanActivity$interval),mean)
+```
+
+
+**Create a new dataset that is equal to the original dataset but with the missing data filled in.**
+```{r}
+activityimp <- activity
+for(i in 1:length(activityimp$steps)){
+        x <- as.character(activityimp$interval[i])
+        if(is.na(activityimp$steps[i])){
+                
+                activityimp$steps[i] <- meanstoimpute[x]}
+       }
+summary(activityimp)
+```
+
+**Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day.**
+```{r, fig.height=4, fig.width=7}
+h <- sapply(split(activityimp$steps, activityimp$date),sum)
+hist(h, col= "red", main = "Histogram", xlab= "total number of steps taken each day")
+
+```
+
+```{r}
+c <- mean(sapply(split(activityimp$steps, activityimp$date),sum))
+d <- median(sapply(split(activityimp$steps, activityimp$date),sum))
+```
+The mean number of steps taken per day is now `r c`
+The median number of steps taken per day is now `r d`
+
+**Do these values differ from the estimates from the first part of the assignment?**  
+Yes, there are some minor changes in the output. The mean stays the same. Which is logical, since I used the mean to impute the values. Only the median is slightly changed to the same value as the mean.  
+**What is the impact of imputing missing data on the estimates of the total daily number of steps?**    
+In the following we see the total daily number of steps before and after the imputation:   
+```{r, echo=FALSE, fig.height=4, fig.width=7}
+par(mfrow=c(1,2))
+barplot(sapply(split(cleanActivity$steps, cleanActivity$date),sum), col= "red", main = "Before", xlab= "date", ylab="total numer of steps")
+barplot(sapply(split(activityimp$steps, activityimp$date),sum), col= "red", main = "After", xlab= "date")
+
+```
+  
+  As you can see as an impact we have two additional days displayed in the graph. Before the data was missing on the 2012-10-02 and 2012-11-13 know we have them replaced. 
