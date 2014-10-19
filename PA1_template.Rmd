@@ -169,11 +169,42 @@ The median number of steps taken per day is now `r d`
 Yes, there are some minor changes in the output. The mean stays the same. Which is logical, since I used the mean to impute the values. Only the median is slightly changed to the same value as the mean.  
 **What is the impact of imputing missing data on the estimates of the total daily number of steps?**    
 In the following we see the total daily number of steps before and after the imputation:   
-```{r, echo=FALSE, fig.height=4, fig.width=7, warning=FALSE}
+```{r, fig.height=4, fig.width=7, warning=FALSE}
 par(mfrow=c(1,2))
 barplot(sapply(split(cleanActivity$steps, cleanActivity$date),sum), col= "red", main = "Before", xlab= "date", ylab="total numer of steps")
 barplot(sapply(split(activityimp$steps, activityimp$date),sum), col= "red", main = "After", xlab= "date")
 
 ```
   
-  As you can see as an impact we have two additional days displayed in the graph. Before the data was missing on the 2012-10-02 and 2012-11-13 know we have them replaced. 
+  As you can see as an impact we have two additional days displayed in the graph. Before the data was missing on the 2012-10-02 and 2012-11-13 know we have them replaced.  
+
+##Are there differences in activity patterns between weekdays and weekends?##
+
+For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part.
+
+**Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.**
+The follwing code makes a new variable that indicated the week day. The loop will replace Sundays and Saturdays with "weekend" and the rest with "weekday"
+
+```{r}
+activitywd <- activityimp
+activitywd$weekday <- weekdays(activitywd$date)
+for(i in 1:length(activitywd$weekday)){
+        if(activitywd$weekday[i] == "Sonntag" | activitywd$weekday[i] == "Samstag"){
+                activitywd$weekday[i] <- "weekend"
+         }else{activitywd$weekday[i] <- "weekday"}
+        }
+activitywd$weekday <- as.factor(activitywd$weekday)
+```
+
+**Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).**
+This plot is a little bit tricky, so i have to use the ggplot2 package to display. Remember to install the package first. 
+
+```{r, fig.height=3, fig.width=10, warning=FALSE}
+library(ggplot2)
+
+qplot(interval, steps, data =activitywd, geom="line", fun.y=mean, stat="summary", color=weekday)
+
+```
+Yes, there are differences. On average the activity on weekends starts later in the day (seems logic) and there are more activity peaks in the afternoon. On weekdays the maximum mean number of steps is higher. 
+
+  
