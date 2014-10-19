@@ -104,6 +104,11 @@ sapply(split(cleanActivity$steps, cleanActivity$date),mean)
 **Make a histogram of the total number of steps taken each day**
 
 This is an overview of the total number of steps taken per day:
+
+```r
+barplot(sapply(split(cleanActivity$steps, cleanActivity$date),sum), col= "red", main = "total number of steps taken each day", xlab= "")
+```
+
 ![plot of chunk unnamed-chunk-4](./PA1_template_files/figure-html/unnamed-chunk-4.png) 
  
 This Histogramm shows the frequency of the total number of steps taken per day:
@@ -194,7 +199,7 @@ naint <- sum(is.na(activity$interval))
 ```
 The number of Na's in the dataset is 2304. There 0 are missing values in the date column, 2304 missing values in the steps column and 0 missing values in the interval column. Therefore I only need to fill the missing steps values.    
 
-I will try to fill them with the mean for each 5-minute interval:
+I will try to fill them with the mean for each 5-minute interval. The following object contains a list of the means for each intervall:
 
 ```r
 meanstoimpute <- sapply(split(cleanActivity$steps, cleanActivity$interval),mean)
@@ -202,6 +207,8 @@ meanstoimpute <- sapply(split(cleanActivity$steps, cleanActivity$interval),mean)
 
 
 **Create a new dataset that is equal to the original dataset but with the missing data filled in.**
+In the following R-code chunck i created a copy of the activity matix names activityimp. The for loop looks at every entry in the steps column of the activityimp matrix. If there is an NA value it replaces the vale with the mean stored to the corresponding value in the labels column. It will pull it out of the list of the means for each intervall created above. The summary fuction shows there are no NAs left after the imputation.
+
 
 ```r
 activityimp <- activity

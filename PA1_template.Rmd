@@ -65,7 +65,7 @@ sapply(split(cleanActivity$steps, cleanActivity$date),mean)
 **Make a histogram of the total number of steps taken each day**
 
 This is an overview of the total number of steps taken per day:
-```{r, echo=FALSE, fig.height=4, fig.width=7}
+```{r, fig.height=4, fig.width=7}
 barplot(sapply(split(cleanActivity$steps, cleanActivity$date),sum), col= "red", main = "total number of steps taken each day", xlab= "")
 
 ```
@@ -131,13 +131,15 @@ naint <- sum(is.na(activity$interval))
 ```
 The number of Na's in the dataset is `r nanum`. There `r nad` are missing values in the date column, `r nast` missing values in the steps column and `r naint` missing values in the interval column. Therefore I only need to fill the missing steps values.    
 
-I will try to fill them with the mean for each 5-minute interval:
+I will try to fill them with the mean for each 5-minute interval. The following object contains a list of the means for each intervall:
 ```{r}
 meanstoimpute <- sapply(split(cleanActivity$steps, cleanActivity$interval),mean)
 ```
 
 
 **Create a new dataset that is equal to the original dataset but with the missing data filled in.**
+In the following R-code chunck i created a copy of the activity matix names activityimp. The for loop looks at every entry in the steps column of the activityimp matrix. If there is an NA value it replaces the vale with the mean stored to the corresponding value in the labels column. It will pull it out of the list of the means for each intervall created above. The summary fuction shows there are no NAs left after the imputation.
+
 ```{r}
 activityimp <- activity
 for(i in 1:length(activityimp$steps)){
@@ -167,7 +169,7 @@ The median number of steps taken per day is now `r d`
 Yes, there are some minor changes in the output. The mean stays the same. Which is logical, since I used the mean to impute the values. Only the median is slightly changed to the same value as the mean.  
 **What is the impact of imputing missing data on the estimates of the total daily number of steps?**    
 In the following we see the total daily number of steps before and after the imputation:   
-```{r, echo=FALSE, fig.height=4, fig.width=7}
+```{r, echo=FALSE, fig.height=4, fig.width=7, warning=FALSE}
 par(mfrow=c(1,2))
 barplot(sapply(split(cleanActivity$steps, cleanActivity$date),sum), col= "red", main = "Before", xlab= "date", ylab="total numer of steps")
 barplot(sapply(split(activityimp$steps, activityimp$date),sum), col= "red", main = "After", xlab= "date")
