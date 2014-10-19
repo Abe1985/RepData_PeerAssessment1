@@ -141,20 +141,6 @@ The median number of steps taken per day is 1.0765 &times; 10<sup>4</sup>
 ```r
 ts <- sapply(split(cleanActivity$steps, cleanActivity$interval),mean)
 plot(ts, type = "l", main = "Average steps taken per interval", xlab= "interval number", ylab="average number of steps taken, averaged across all days", labels=FALSE,tick=FALSE)
-```
-
-```
-## Warning: "labels" ist kein Grafikparameter
-## Warning: "tick" ist kein Grafikparameter
-## Warning: "labels" ist kein Grafikparameter
-## Warning: "tick" ist kein Grafikparameter
-## Warning: "labels" ist kein Grafikparameter
-## Warning: "tick" ist kein Grafikparameter
-## Warning: "labels" ist kein Grafikparameter
-## Warning: "tick" ist kein Grafikparameter
-```
-
-```r
 axis(1, at=c(1,45,89,133,177,221,265), labels=c(0,340,720,1100,1440,1820,2200))
 axis(2, labels=TRUE)
 ```

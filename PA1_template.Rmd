@@ -93,7 +93,7 @@ The median number of steps taken per day is `r b`
 ##What is the average daily activity pattern?
 
 **Make a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)**
-```{r, fig.height=3, fig.width=10}
+```{r, fig.height=3, fig.width=10, warning=FALSE}
 ts <- sapply(split(cleanActivity$steps, cleanActivity$interval),mean)
 plot(ts, type = "l", main = "Average steps taken per interval", xlab= "interval number", ylab="average number of steps taken, averaged across all days", labels=FALSE,tick=FALSE)
 axis(1, at=c(1,45,89,133,177,221,265), labels=c(0,340,720,1100,1440,1820,2200))
